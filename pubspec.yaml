@@ -1,0 +1,25 @@
+name: overlays
+description: flutter Overlay extension
+version: 0.0.1
+repository: https://github.com/sersr/overlays
+
+environment:
+  sdk: ^3.14.0-200.0.dev
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  nop: ">=0.2.0+3"
+  equatable: ">=2.0.3 <3.0.0"
+  collection: ">=1.15.0 <2.0.0"
+  web: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+dependency_overrides:
+  nop:
+    path: ../nop
