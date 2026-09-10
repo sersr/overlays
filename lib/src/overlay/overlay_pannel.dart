@@ -6,14 +6,14 @@ import 'overlay_event.dart';
 mixin OverlayPannel on OverlayMixin, OverlayEvent {
   final _entries = <OverlayEntry>[];
 
-  addEntry(OverlayEntry entry) {
+  void addEntry(OverlayEntry entry) {
     _entries.add(entry);
     if (inited) {
       overlay.insert(entry);
     }
   }
 
-  remove(OverlayEntry entry) {
+  void remove(OverlayEntry entry) {
     _entries.remove(entry);
   }
 
@@ -63,7 +63,7 @@ class CurvedAnimationWidget extends StatefulWidget {
   final Curve? curve;
   final Curve? reverseCurve;
   final Widget Function(BuildContext context, Animation<double> animation)
-      builder;
+  builder;
   @override
   State<CurvedAnimationWidget> createState() => _CurvedAnimationWidgetState();
 }

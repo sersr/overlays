@@ -243,11 +243,11 @@ class OverlaySideGesture extends StatelessWidget {
     return null;
   }
 
-  show() {
+  void show() {
     owner.show();
   }
 
-  hide() {
+  void hide() {
     owner.hide();
   }
 

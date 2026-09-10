@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../overlays.dart';
-import 'overlay_observer.dart';
 
 final _navToken = Object();
 
@@ -79,8 +78,11 @@ class NavRePopPushNamedAction<R> extends NavAction
   @override
   void action(NavigatorState state) {
     try {
-      final id = state.restorablePopAndPushNamed(routeName,
-          result: popResult, arguments: arguments);
+      final id = state.restorablePopAndPushNamed(
+        routeName,
+        result: popResult,
+        arguments: arguments,
+      );
       complete(id);
     } catch (_) {
       completeError();
@@ -97,8 +99,11 @@ class NavRePushNamedUntilAction extends NavAction
   @override
   void action(NavigatorState state) {
     try {
-      final id = state.restorablePushNamedAndRemoveUntil(routeName, predicate,
-          arguments: arguments);
+      final id = state.restorablePushNamedAndRemoveUntil(
+        routeName,
+        predicate,
+        arguments: arguments,
+      );
       complete(id);
     } catch (_) {
       completeError();
@@ -115,8 +120,11 @@ class NavRePushNamedReplaceAction<R> extends NavAction
   @override
   void action(NavigatorState state) {
     try {
-      final id = state.restorablePushReplacementNamed(routeName,
-          result: popResult, arguments: arguments);
+      final id = state.restorablePushReplacementNamed(
+        routeName,
+        result: popResult,
+        arguments: arguments,
+      );
       complete(id);
     } catch (_) {
       completeError();
@@ -148,8 +156,11 @@ class NavPopAndPushNamedAction<T, R> extends NavAction
   @override
   void action(NavigatorState state) {
     state
-        .popAndPushNamed<T, R>(routeName,
-            result: popResult, arguments: arguments)
+        .popAndPushNamed<T, R>(
+          routeName,
+          result: popResult,
+          arguments: arguments,
+        )
         .then(complete, onError: completeError);
   }
 }
@@ -164,8 +175,11 @@ class NavPushReplacementNamedAction<T, R> extends NavAction
   @override
   void action(NavigatorState state) {
     state
-        .pushReplacementNamed<T, R>(routeName,
-            result: popResult, arguments: arguments)
+        .pushReplacementNamed<T, R>(
+          routeName,
+          result: popResult,
+          arguments: arguments,
+        )
         .then(complete, onError: completeError);
   }
 }
@@ -226,7 +240,10 @@ class NavReplaceAction<T> extends NavAction {
 class NavRestorableReplaceAction<T> extends NavAction
     with NaviActionResult<String> {
   NavRestorableReplaceAction(
-      this.oldRoute, this.newRouteBuilder, this.arguments);
+    this.oldRoute,
+    this.newRouteBuilder,
+    this.arguments,
+  );
   final Route<dynamic> oldRoute;
   final RestorableRouteBuilder<T> newRouteBuilder;
   final Object? arguments;
@@ -234,9 +251,10 @@ class NavRestorableReplaceAction<T> extends NavAction
   void action(NavigatorState state) {
     try {
       final result = state.restorableReplace(
-          oldRoute: oldRoute,
-          newRouteBuilder: newRouteBuilder,
-          arguments: arguments);
+        oldRoute: oldRoute,
+        newRouteBuilder: newRouteBuilder,
+        arguments: arguments,
+      );
       complete(result);
     } catch (_) {
       completeError();

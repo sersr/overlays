@@ -27,14 +27,18 @@ mixin StateAsyncGetter<T extends State> {
   void onFailed() {}
   FutureOr<void> initRun(T state) {}
 }
+
 typedef StateGetter<T> = T? Function();
 
 /// 在同一个代码块中读取值
 /// 确保初始化时，`state.mounted == true`
 ///
 /// 通过`throw`退出循环
-FutureOr<void> waitState<T extends State>(FutureOr<void> Function(T) run,
-    StateGetter<T> stateGetter, VoidCallback onFailed) async {
+FutureOr<void> waitState<T extends State>(
+  FutureOr<void> Function(T) run,
+  StateGetter<T> stateGetter,
+  VoidCallback onFailed,
+) async {
   Timer? timer;
   assert(() {
     timer = Timer(const Duration(seconds: 10), () {
@@ -52,7 +56,7 @@ FutureOr<void> waitState<T extends State>(FutureOr<void> Function(T) run,
           timer?.cancel();
           return true;
         }());
-        return run(overlaystate);
+        return await run(overlaystate);
       }
     } on OverlayGetterError catch (e) {
       assert(Log.i(e));
