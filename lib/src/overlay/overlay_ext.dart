@@ -1,26 +1,26 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:overlays/src/navigation/overlay_observer.dart';
 
 import 'nav_overlay_getter.dart';
 import 'nav_overlay_mixin.dart';
-import 'overlay_pannel.dart';
-import 'overlay_side_pannel.dart';
+import 'overlay_panel.dart';
+import 'overlay_side_panel.dart';
 
 typedef SnackbarDelegate = OverlayMixinDelegate;
 typedef BannerDelegate = OverlayMixinDelegate;
 typedef ToastDelegate = OverlayMixinDelegate;
+typedef MenuDelegate = OverlayMixinDelegate;
 
 final _snackBarToken = Object();
 final _bannelToken = Object();
 final _toastToken = Object();
 
-extension OverlayExt on NavObserver {
+extension OverlayExt on OverlaysObserver {
   SnackbarDelegate snackBar(
     Widget content, {
     Duration duration = const Duration(seconds: 3),
     Duration animationDuration = const Duration(milliseconds: 300),
     Duration delayDuration = Duration.zero,
-    bool? closeOndismissed,
     Color? color,
     Object? key,
     bool autoShow = true,
@@ -31,7 +31,6 @@ extension OverlayExt on NavObserver {
     animationDuration: animationDuration,
     delayDuration: delayDuration,
     color: color,
-    closeOndismissed: closeOndismissed,
     autoShow: autoShow,
     position: NopOverlayPosition.bottom,
   );
@@ -72,7 +71,6 @@ extension OverlayExt on NavObserver {
     double bottomPadding = 80.0,
     EdgeInsets? padding,
     Object? key,
-    bool? closeOndismissed,
     bool autoShow = true,
   }) {
     return showOverlay(
@@ -87,7 +85,6 @@ extension OverlayExt on NavObserver {
       onTap: (owner) {
         owner.hide();
       },
-      closeOndismissed: true,
       transition: (child, self) {
         final owner = self.owner;
         return AnimatedBuilder(
@@ -106,6 +103,84 @@ extension OverlayExt on NavObserver {
         );
       },
     );
+  }
+
+  MenuDelegate menu(
+    Widget content, {
+
+    required Rect anchorGlobal,
+    Duration animationDuration = const Duration(milliseconds: 300),
+    Color? color,
+    BorderRadius? radius,
+    bool removeAll = false,
+    EdgeInsets? margin,
+    NopOverlayPosition position = NopOverlayPosition.none,
+    Object? showKey,
+    bool autoShow = true,
+    required Widget Function(BuildContext context, Widget child)? builder,
+    Widget Function(
+      Widget child,
+      UserGestureController<OverlayPanelBuilder> controller,
+      ValueNotifier<Alignment> alignment,
+    )?
+    transition,
+  }) {
+    final valueNotifier = ValueNotifier(Alignment.center);
+
+    final controller = OverlayPanelBuilder(
+      showKey: showKey,
+      stay: null,
+      builder: (context, self) {
+        final key = GlobalKey();
+
+        Widget Function(Widget child)? localTransition;
+        if (transition != null) {
+          localTransition = (Widget child) {
+            return transition(child, self, valueNotifier);
+          };
+        } else {
+          localTransition = _transition(self, position);
+        }
+
+        final padding = MediaQuery.paddingOf(context);
+
+        Widget child = OverlayWidget(
+          content: content,
+          sizeKey: key,
+          color: color,
+          radius: radius,
+          margin: margin,
+          removeAll: removeAll,
+          position: .none,
+        );
+
+        if (localTransition case var transition?) {
+          child = transition(child);
+        }
+
+        child = CustomSingleChildLayout(
+          delegate: _MenuLayoutDelegate(
+            anchorRect: anchorGlobal,
+            bottomMargin: padding.bottom,
+            valueNotifier: valueNotifier,
+          ),
+          child: child,
+        );
+
+        if (builder case var builder?) {
+          child = builder(context, child);
+        }
+        return child;
+      },
+    );
+
+    final overlay = OverlayMixinDelegate(
+      controller,
+      animationDuration,
+      delayDuration: .zero,
+    );
+    if (autoShow) overlay.show();
+    return overlay;
   }
 
   Future<T?> showDialog<T>({
@@ -194,10 +269,9 @@ Tween<Offset>? _getOffsetFrom(NopOverlayPosition position) {
 
 OverlayMixinDelegate showOverlay(
   Widget content, {
-  Duration duration = const Duration(seconds: 3),
+  Duration? duration = const Duration(seconds: 3),
   Duration animationDuration = const Duration(milliseconds: 300),
   Duration delayDuration = Duration.zero,
-  bool? closeOndismissed,
   Color? color,
   BorderRadius? radius,
   bool removeAll = false,
@@ -213,15 +287,14 @@ OverlayMixinDelegate showOverlay(
   Widget Function(BuildContext context, Widget child)? builder,
   Widget Function(
     Widget child,
-    UserGestureController<OverlayPannelBuilder> controller,
+    UserGestureController<OverlayPanelBuilder> controller,
   )?
   transition,
 }) {
   final offset = _getOffsetFrom(position);
 
-  final controller = OverlayPannelBuilder(
+  final controller = OverlayPanelBuilder(
     showKey: showKey,
-    closeOndismissed: closeOndismissed ?? true,
     stay: duration,
     builder: (context, self) {
       final key = GlobalKey();
@@ -295,4 +368,99 @@ OverlayMixinDelegate showOverlay(
   );
   if (autoShow) overlay.show();
   return overlay;
+}
+
+Widget Function(Widget child)? _transition(
+  UserGestureController<OverlayPanelBuilder> self,
+  NopOverlayPosition position,
+) {
+  final transitionOffset = _getOffsetFrom(position);
+  if (transitionOffset == null) return null;
+
+  return (Widget child) {
+    return AnimatedBuilder(
+      animation: self.userGesture,
+      builder: (context, _) {
+        if (self.userGesture.value) {
+          final position = self.owner.controller.drive(transitionOffset);
+
+          return SlideTransition(position: position, child: child);
+        }
+
+        return CurvedAnimationWidget(
+          builder: (context, animation) {
+            final position = animation.drive(transitionOffset);
+            return SlideTransition(position: position, child: child);
+          },
+          controller: self.owner.controller,
+        );
+      },
+    );
+  };
+}
+
+class _MenuLayoutDelegate extends SingleChildLayoutDelegate {
+  _MenuLayoutDelegate({
+    required this.anchorRect,
+    required this.bottomMargin,
+    required this.valueNotifier,
+  });
+
+  final Rect anchorRect;
+  final double bottomMargin;
+
+  final ValueNotifier<Alignment> valueNotifier;
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
+    final leftExtent = anchorRect.left;
+    final rightExtent = constraints.maxWidth - anchorRect.right;
+    final extent = leftExtent > rightExtent ? leftExtent : rightExtent;
+
+    return BoxConstraints.loose(
+      .new(extent, constraints.maxHeight - bottomMargin),
+    );
+  }
+
+  void updateValue(Offset offset, Size size) {
+    final rect = offset & size;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final x = rect.left < anchorRect.left ? 1.0 : -1.0;
+      final center = anchorRect.center.dy;
+      final extent = rect.height;
+      if (extent == 0) {
+        return;
+      }
+      final yp = center.clamp(rect.top, rect.bottom);
+      final p = (yp - rect.top) / extent;
+      valueNotifier.value = Alignment(x, p.clamp(0.0, 1.0) * 2 - 1);
+    });
+  }
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    final contentSize = childSize;
+    final dyEnd = size.height - bottomMargin;
+    final dxEnd = size.width;
+
+    var dx = anchorRect.right;
+    var dy = anchorRect.bottom;
+
+    if (dx + contentSize.width > dxEnd) {
+      dx = anchorRect.left - contentSize.width;
+    }
+
+    if (dy + contentSize.height > dyEnd) {
+      dy = dyEnd - childSize.height;
+    }
+
+    final Offset offset = .new(dx, dy);
+    updateValue(offset, contentSize);
+    return offset;
+  }
+
+  @override
+  bool shouldRelayout(covariant SingleChildLayoutDelegate oldDelegate) {
+    return false;
+  }
 }

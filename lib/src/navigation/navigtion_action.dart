@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../overlays.dart';
 
@@ -292,7 +292,7 @@ class NavigatorDelegate<T> with StateAsyncGetter<NavigatorState> {
 
   @override
   NavigatorState? getState() {
-    return navigatorStateGetter?.call() ?? Nav.getNavigator();
+    return navigatorStateGetter?.call() ?? Overlays.getNavigator();
   }
 
   @override

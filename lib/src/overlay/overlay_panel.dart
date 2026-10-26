@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'nav_overlay_mixin.dart';
 import 'overlay_event.dart';
 
-mixin OverlayPannel on OverlayMixin, OverlayEvent {
+mixin OverlayPanel on OverlayMixin, OverlayEvent {
   final _entries = <OverlayEntry>[];
 
   void addEntry(OverlayEntry entry) {
@@ -33,8 +33,8 @@ mixin OverlayPannel on OverlayMixin, OverlayEvent {
   }
 }
 
-class OverlayVerticalPannels with OverlayMixin, OverlayEvent, OverlayPannel {
-  OverlayVerticalPannels({
+class OverlayVerticalPanels with OverlayMixin, OverlayEvent, OverlayPanel {
+  OverlayVerticalPanels({
     List<WidgetBuilder>? builders,
     this.onHideEnd,
     this.onShowEnd,

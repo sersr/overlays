@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import 'navigtion_action.dart';
 
-class NavObserver extends NavigatorObserver {
+class OverlaysObserver extends NavigatorObserver {
   OverlayState? get overlay => navigator?.overlay;
 
   OverlayState? getOverlay() {
@@ -15,9 +15,9 @@ class NavObserver extends NavigatorObserver {
 }
 
 // ignore: non_constant_identifier_names
-final Nav = NavObserver();
+final Overlays = OverlaysObserver();
 
-extension NavigatorExt on NavObserver {
+extension NavigatorExt on OverlaysObserver {
   Future<T?> push<T extends Object?>(
     Route<T> route, {
     NavigatorStateGetter? navigatorStateGetter,

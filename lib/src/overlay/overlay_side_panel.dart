@@ -1,20 +1,22 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nop/event_queue.dart';
 import 'package:nop/utils.dart';
 
 import 'nav_overlay_mixin.dart';
 import 'overlay_event.dart';
-import 'overlay_pannel.dart';
+import 'overlay_panel.dart';
 
 typedef WidgetGestureBuilder<T> = Widget Function(
-    BuildContext context, UserGestureController<T> controller);
+  BuildContext context,
+  UserGestureController<T> controller,
+);
 
 class UserGestureController<T> {
   UserGestureController({required this.owner, ValueNotifier<bool>? userGesture})
-      : userGesture = userGesture ?? ValueNotifier(false);
+    : userGesture = userGesture ?? ValueNotifier(false);
 
   final T owner;
   final ValueNotifier<bool> userGesture;
@@ -72,6 +74,7 @@ mixin OverlayIgnore on OverlayMixin {
     return value;
   }
 }
+
 mixin OverlayShowOnly on OverlayMixin {
   Object? get showKey;
   @override
@@ -100,29 +103,31 @@ class OverlayDisposeEntry extends OverlayEntry {
   }
 }
 
-class OverlayPannelBuilder
+class OverlayPanelBuilder
     with
         OverlayMixin,
         OverlayEvent,
-        OverlayPannel,
+        OverlayPanel,
         OverlayClose,
         OverlayIgnore,
         OverlayShowOnly {
-  OverlayPannelBuilder({
-    required WidgetGestureBuilder<OverlayPannelBuilder> builder,
+  OverlayPanelBuilder({
+    required WidgetGestureBuilder<OverlayPanelBuilder> builder,
     this.stay,
-    bool? closeOndismissed,
     this.showKey,
-  }) : closeOnDissmissed = closeOndismissed ?? false {
-    addEntry(OverlayDisposeEntry(
+  })   {
+    addEntry(
+      OverlayDisposeEntry(
         overlayMixin: this,
-        builder: (context) => builder(context, _userGestureController)));
+        builder: (context) => builder(context, _userGestureController),
+      ),
+    );
   }
   late final _userGestureController = UserGestureController(owner: this);
 
   @override
   final Duration? stay;
-  final bool closeOnDissmissed;
+
   @override
   final Object? showKey;
 
@@ -299,13 +304,7 @@ class OverlaySideGesture extends StatelessWidget {
   }
 }
 
-enum NopOverlayPosition {
-  none,
-  top,
-  right,
-  left,
-  bottom,
-}
+enum NopOverlayPosition { none, top, right, left, bottom }
 
 class OverlayWidget extends StatelessWidget {
   const OverlayWidget({
@@ -361,9 +360,10 @@ class OverlayWidget extends StatelessWidget {
       padding: isTop ? null : innerPadding,
       child: DefaultTextStyle(
         style: TextStyle(
-            color: isDark
-                ? const Color.fromARGB(255, 221, 221, 221)
-                : const Color.fromARGB(255, 44, 44, 44)),
+          color: isDark
+              ? const Color.fromARGB(255, 221, 221, 221)
+              : const Color.fromARGB(255, 44, 44, 44),
+        ),
         child: content,
       ),
     );

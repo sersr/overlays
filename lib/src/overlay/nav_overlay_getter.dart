@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nop/event_queue.dart';
 
 import '../navigation/overlay_observer.dart';
@@ -19,7 +19,7 @@ abstract class OverlayDelegate with StateAsyncGetter<OverlayState> {
     final getter = _overlayObserver?.overlayGetter;
     if (getter != null) return getter();
 
-    return Nav.getOverlay();
+    return Overlays.getOverlay();
   }
 
   Future<void> get future;
