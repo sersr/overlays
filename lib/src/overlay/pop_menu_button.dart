@@ -3,11 +3,17 @@ import 'package:material_ui/material_ui.dart';
 import 'package:overlays/overlays.dart';
 
 class PopMenuButton extends StatefulWidget {
-  const new({super.key, required this.builder, required this.buildMenu});
+  const new({
+    super.key,
+    required this.builder,
+    required this.buildMenu,
+    this.background = Colors.transparent,
+  });
   final Widget Function(BuildContext context, PopMenuButtonState state) builder;
   final Widget Function(BuildContext context, PopMenuButtonState state)
   buildMenu;
 
+  final Color background;
   @override
   State<PopMenuButton> createState() => PopMenuButtonState();
 }
@@ -26,9 +32,9 @@ class PopMenuButtonState extends State<PopMenuButton> {
       _menu = Overlays.menu(
         widget.buildMenu(context, this),
         anchorGlobal: offset & size,
+        color: widget.background,
         transition: (child, self, alignment) {
           final align = alignment.al;
-
           return Cs(() {
             final scaleAlign = align.value;
             return CurvedAnimationWidget(
