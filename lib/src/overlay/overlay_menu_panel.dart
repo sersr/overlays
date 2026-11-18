@@ -9,7 +9,7 @@ class PopMenuController {
         ?.controller;
   }
 
-  final menuIsShowing = false.al;
+  final menuIsShowing = false.val;
   final AV<Offset?> tapOffset = .val(null);
 
   late final listenable = Listenable.merge([menuIsShowing, tapOffset]);
